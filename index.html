@@ -13,6 +13,8 @@
         href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="./moment-with-locales.js"></script>
+    
     <title>Weather API</title>
 
     <style>
@@ -54,7 +56,7 @@
             </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                
+
             </main>
         </div>
     </div>
@@ -74,7 +76,7 @@
     <div id="weather"> -->
 
     <script>
-        
+
         $("#location").click(() => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(getWeather);
@@ -88,17 +90,27 @@
             var location = getLocation();
         });
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             getWeather(40, 35);
         });
 
         function getWeather(latitude, longitude) {
-            $.get("https://api.openweathermap.org/data/2.5/onecall?lat=" + 
-                latitude + "&lon=" + 
-                longitude + "&appid=3c2708df10b6a2b88d777609178106b0", response => {
-                console.log(response);
-                $("main").text(response);
-            });
+            $.get("https://api.openweathermap.org/data/2.5/onecall?lat=" +
+                latitude + "&lon=" +
+                longitude + "&appid=3c2708df10b6a2b88d777609178106b0" +
+                "&units=imperial", response => {
+                    $.each(response.daily, (i, day) => {
+                        var card = $("<div>").addClass("card p-4 m-4");
+
+                        var text = moment().add(i, 'days').format('dddd, MMMM Do');
+                        text += " - Min: " + Math.round(day.temp.min) + 
+                            "°F - Max: " + Math.round(day.temp.max) + 
+                            "°F - Conditions: " + day.weather[0].description.replace(/\b\w/g, word => word.toUpperCase());
+                        card.text(text);
+
+                        $("main").append(card);
+                    });
+                });
         }
 
         function displayWeather(response) {
