@@ -61,7 +61,7 @@
                 </form>
             </nav>
 
-            <main role="main" class="container-fluid col-md-12 col-lg-8 d-flex justify-content-center">
+            <main role="main" class="container-fluid col-md-12 col-lg-8 m-0 p-0">
                 <div id="current-weather" class="row mt-5">
                     <!-- Current Weather here -->
                 </div>
@@ -72,123 +72,136 @@
         </div>
     </div>
     <script>
+        $(document).ready(function () {
+            // Attempt to locate the user
+            // Otherwise, remove location option.
+            $("#locate").click(() => {
+                event.preventDefault();
 
-        // Attempt to locate the user
-        // Otherwise, remove location option.
-        $("#locate").click(() => {
-            event.preventDefault();
+                if (navigator.geolocation) {
+                    var position = navigator.geolocation.getCurrentPosition(response => {
+                        queryOWMAPIByCoord(response.coords.longitude, response.coords.latitude, displayWeather);
+                    }, () =>
+                        $("#locate").remove("*"));
+                }
+            });
 
-            if (navigator.geolocation) {
-                var position = navigator.geolocation.getCurrentPosition(response => {
-                    queryOWMAPIByCoord(response.coords.longitude, response.coords.latitude, displayWeather);
-                }, () => {
-                    $("#locate").remove("*");
-                });
-            }
-        });
+            // Attempt to search by City, State
+            // Otherwise, set focus to the city-state input.
+            $("#search").click(event => {
+                event.preventDefault();
+                var cityState = $("#city-state").val();
+                if ((cityState) && cityState.includes(",")) {
+                    queryOWMAPIByCity(cityState, displayWeather);
 
-        // Attempt to search by City, State
-        // Otherwise, set focus to the city-state input.
-        $("#search").click(event => {
-            event.preventDefault();
-            var cityState = $("#city-state").val();
-            if ((cityState) && cityState.includes(",")) {
-                queryOWMAPIByCity(cityState, displayWeather);
-
-                var cities = getCitiesList();
-                if (cities) {
-                    cities.push(cityState);
-                    var result = cities.filter((value, index, self) => self.indexOf(value) === index);
-                    updateCitiesList(result);
+                    var cities = getCitiesList();
+                    var result = [];
+                    if (cities) {
+                        cities.push(cityState);
+                        result = cities.filter((value, index, self) => self.indexOf(value) === index);
+                    }
+                    else {
+                        result = [cityState];
+                    }
+                    localStorage.setItem("cities", JSON.stringify(result));
+                    loadCities();
                 }
                 else {
-                    updateCitiesList([cityState])
+                    $("#city-state").focus();
                 }
-                loadCities();
-            }
-            else {
-                $("#city-state").focus();
-            }
-        });
-
-        // Query on city click
-        $(".city").click(function (event) {
-            event.preventDefault();
-
-            queryOWMAPIByCity($(this).text().replace(" ", ""), displayWeather);
-        });
-
-        function updateCitiesList(cities) {
-            localStorage.setItem("cities", JSON.stringify(cities));
-        }
-
-        function getCitiesList() {
-            return JSON.parse(localStorage.getItem("cities"));
-        }
-
-
-        function loadCities() {
-            $("#city-list").empty();
-            var cities = getCitiesList();
-
-            if (cities) {
-                cities.forEach(city => {
-                    var city = $("<h2>").addClass("city text-center py-2 border-bottom").text(city);
-                    $("#city-list").append(city);
-                });
-                $(".city:last-child").removeClass("border-bottom");
-            }
-        }
-        loadCities();
-
-        function displayWeather(response, location) {
-            displayCurrentWeather(response.current, location);
-            displayForecast(response.daily, location);
-        }
-
-        function displayCurrentWeather(weather, location) {
-            $("#current-weather").empty();
-
-            var result = $("<div>").addClass("card col-12 display-block");
-            var img = $("<img>").attr({
-                src: "https://openweathermap.org/img/wn/" + weather.weather[0].icon + "@2x.png",
-                alt: weather.weather[0].description,
-                width: "100px !important",
-                height: "100px !important"
             });
-            result.append(img);
-            result.append($("<h3>").addClass("display-3 col-12").text("Current Weather for " + location + " "));
-            result.append($("<p>").text(weather.temp));
-            result.append($("<p>").text(weather.humidity));
-            result.append($("<p>").text(weather.wind_speed + "mph"));
-            // TODO (opt): wind_deg: 200
 
-            $("#current-weather").append(result);
-        }
+            // Query on city click
+            $("#city-list>h3").click(function (event) {
+                event.preventDefault();
 
-        function displayForecast(forecast, location) {
-            // $("#forecast").empty();
+                queryOWMAPIByCity($(this).text().replace(" ", ""), displayWeather);
+            });
 
-            // result.append($("<h3>").addClass("display-3 col-12").text("5-Day Forecast"));
+            function updateCitiesList(cities) {
+            }
 
-            // forecast.forEach(day => {
-            //     var card = $("<section>").addClass("card bg-primary text-white text-center col-sm-12 col-md-12 col-lg-2 m-2");
-            //     var heading = $("<h2>").text(moment(day.dt_txt).format("l"))
-            //     var img = $("<img>").attr({ src: "https://openweathermap.org/img/wn/" + day.weather[0].icon + "@2x.png", alt: day.weather[0].description, width: "100px !important", height: "100px !important", class: "mx-auto" });
+            function getCitiesList() {
+                return JSON.parse(localStorage.getItem("cities"));
+            }
 
-            //     card.append(heading);
-            //     card.append($("<p>").text("Humidity " + day.main.humidity + "%"));
-            //     card.append($("<p>").text(day.weather[0].description));
-            //     card.append($("<p>").text(day.main.temp.toFixed(0) + "°F"));
-            //     card.append(img);
+            function loadCities() {
+                $("#city-list").empty();
+                var cities = getCitiesList();
 
-            //     result.append(card);
-            // });
+                if (cities) {
+                    cities.forEach(city => {
+                        var city = $("<h3>").addClass("city text-center py-2 border-bottom").text(city);
+                        $("#city-list").append(city);
+                    });
+                    $(".city:last-child").removeClass("border-bottom");
+                }
+            }
+            loadCities();
 
-            // $("#weather-display").append(result);
-        }
+            function displayWeather(response, location) {
+                displayCurrentWeather(response.current, location);
+                displayForecast(response.daily, location);
+            }
 
-        $("#city-state").focus();
+            function displayCurrentWeather(weather, location) {
+                $("#current-weather").empty();
+
+                var result = $("<section>").addClass("card col-10 mx-auto p-5");
+                var img = $("<img>").attr({
+                    src: "https://openweathermap.org/img/wn/" + weather.weather[0].icon + "@2x.png",
+                    alt: weather.weather[0].description,
+                    width: "100px !important",
+                    height: "100px !important"
+                });
+                result.append($("<h3>").addClass("display-4").text("Current Weather for " + location + " " + moment.unix(day.dt).format("l")));
+                result.append(img);
+                result.append($("<p>").addClass("display-block").text("Temperature: " + weather.temp.toFixed(0) + "°F"));
+                result.append($("<p>").addClass("display-block").text("Humidity: " + weather.humidity + "%"));
+                result.append($("<p>").addClass("display-block").text("Wind: " + getWindDirection(weather.wind_deg) + weather.wind_speed.toFixed(0) + "mph"));
+
+                $("#current-weather").append(result);
+            }
+
+            function getWindDirection(degrees) {
+                if (degrees > -11.75 && degrees < 11.75) return "N";
+                else if (degrees > 11.75 && degrees < 35.25) return "N";
+            }
+
+            function displayForecast(forecast, location) {
+                $("#forecast").empty();
+
+                var result = $("<section>").addClass("col-10 mx-auto p-5");
+
+                result.append($("<h3>").addClass("display-4 col-12").text("5-Day Forecast"));
+
+                forecast.forEach(day => {
+                    var card = $("<section>").addClass("card bg-light text-center col-md-12 col-lg-3 float-left mr-3 mb-3");
+
+                    var heading = $("<h4>").text(moment.unix(day.dt).format("l"));
+                    card.append(heading);
+
+                    var img = $("<img>").attr({ src: "https://openweathermap.org/img/wn/" + day.weather[0].icon + "@2x.png", alt: day.weather[0].description, width: "100px !important", height: "100px !important", class: "mx-auto" });
+                    card.append(img);
+
+                    card.append($("<p>").addClass("text-primary").text("Min: " + day.temp.min.toFixed(0) + "°F"));
+                    card.append($("<p>").addClass("text-danger").text("Max: " + day.temp.max.toFixed(0) + "°F"));
+
+                    // card.append(heading);
+                    // card.append($("<p>").text("Humidity " + day.main.humidity + "%"));
+                    // card.append($("<p>").text(day.weather[0].description));
+                    // card.append($("<p>").text(day.main.temp.toFixed(0) + "°F"));
+                    // card.append(img);
+
+                    result.append(card);
+                });
+
+                $("#forecast").append(result);
+            }
+
+            $("#city-state").focus();
+
+        });
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
