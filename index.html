@@ -81,7 +81,7 @@
             $(".city").click(event => {
                 event.preventDefault();
 
-                queryOWMAPIByCity($(event.currentTarget).text().replace(" ", ""), displayWeather);
+                queryOWMAPIByCity($(event.currentTarget).text(), displayWeather);
             });
         });
         // Attempt to locate the user
@@ -128,7 +128,7 @@
 
             if (cities) {
                 cities.forEach(city => {
-                    $("#city-list").append($("<h3>").addClass("city text-center py-4 border-bottom").text(city));
+                    $("#city-list").append($("<h3>").addClass("city text-center py-4 border-bottom").text(city).val(city));
                 });
                 $(".city:last-child").removeClass("border-bottom");
             }
