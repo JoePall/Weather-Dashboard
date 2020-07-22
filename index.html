@@ -155,19 +155,19 @@
             result.append($("<p>").addClass("display-block").text("Temperature: " + weather.temp.toFixed(0) + "°F"));
             result.append($("<p>").addClass("display-block").text("Humidity: " + weather.humidity + "%"));
             result.append($("<p>").addClass("display-block").text("Wind: " + getWindDirection(weather.wind_deg) + " " + weather.wind_speed.toFixed(0) + "mph"));
+            result.append($("<p>").html("UVI: <span class='bg-danger p-1'>" + weather.uvi + "</span>"));
 
             $("#current-weather").append(result);
         }
 
         function getWindDirection(degrees) {
-            if (degrees > 330 || degrees < 30) return "W";
-            else if (degrees > 30 && degrees < 60) return "NW";
-            else if (degrees > 60 && degrees < 120) return "N";
-            else if (degrees > 120 && degrees < 150) return "NE";
-            else if (degrees > 150 && degrees < 210) return "E";
-            else if (degrees > 210 && degrees < 240) return "SE";
-            else if (degrees > 240 && degrees < 300) return "S";
-            else if (degrees > 300 && degrees < 330) return "SW";
+            var cardinalDirection = ["NW", "NNW", "N", "NNE", "NE", "ENE", "E", "ESE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW"];
+
+            for (let i = 0; i <= 16; i++) {
+                if (((i*22.5)+11.25) >= degrees && (((i*22.5) - 11.25) <= degrees)) {
+                    return cardinalDirection[i];
+                }
+            }
         }
 
         function displayForecast(forecast, location) {
@@ -175,7 +175,7 @@
 
             var result = $("<section>").addClass("col-10 mx-auto p-5");
 
-            result.append($("<h3>").addClass("display-4 col-12").text("5-Day Forecast"));
+            result.append($("<h3>").addClass("display-4 col-12").text("Forecast"));
 
             forecast.forEach(day => {
                 var card = $("<section>").addClass("card bg-light text-center col-md-12 col-lg-3 float-left mr-3 mb-3");
@@ -188,12 +188,6 @@
 
                 card.append($("<p>").addClass("text-primary").text("Min: " + day.temp.min.toFixed(0) + "°F"));
                 card.append($("<p>").addClass("text-danger").text("Max: " + day.temp.max.toFixed(0) + "°F"));
-
-                // card.append(heading);
-                // card.append($("<p>").text("Humidity " + day.main.humidity + "%"));
-                // card.append($("<p>").text(day.weather[0].description));
-                // card.append($("<p>").text(day.main.temp.toFixed(0) + "°F"));
-                // card.append(img);
 
                 result.append(card);
             });

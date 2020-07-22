@@ -4,6 +4,7 @@
     function queryOWMAPIByCoord(lon, lat, callback) {
         var queryURL = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&exclude=hourly,minutely&appid=" + APIKey + "&units=imperial";
     
+        console.log(queryURL);
         $.getJSON(queryURL, response => {
             callback(response, "local");
         });
