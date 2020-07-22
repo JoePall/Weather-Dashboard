@@ -128,8 +128,7 @@
 
             if (cities) {
                 cities.forEach(city => {
-                    var city = $("<h3>").addClass("city text-center py-2 border-bottom").text(city);
-                    $("#city-list").append(city);
+                    $("#city-list").append($("<h3>").addClass("city text-center py-4 border-bottom").text(city));
                 });
                 $(".city:last-child").removeClass("border-bottom");
             }

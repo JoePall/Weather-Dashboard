@@ -10,7 +10,7 @@
     }
     
     function queryOWMAPIByCity(cityState, callback) {
-        var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityState.replace(" ", "") + ",USA&appid=" + APIKey + "&units=imperial";
+        var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityState.replace(" ", ",") + ",USA&appid=" + APIKey + "&units=imperial";
 
         $.getJSON(queryURL, response => {
             queryOWMAPIByCoord(response.city.coord.lon, response.city.coord.lat, response2 => {
