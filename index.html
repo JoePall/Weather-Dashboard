@@ -34,6 +34,10 @@
         .city {
             cursor: pointer;
         }
+
+        body {
+            overflow-x: hidden;
+        }
     </style>
 </head>
 
@@ -43,12 +47,10 @@
         <h1 class="display-3">WEATHER <b>DASHBOARD</b></h1>
     </header>
 
-    <div class="container-fluid">
+    <div class="container-fluid overflow-none">
         <div class="row">
-            <nav id="sidebarMenu" class="col-md-12 col-lg-4 sticky bg-light">
-
-                <form class="sidebar-sticky pt-3">
-
+            <nav id="sidebarMenu" class="col-md-12 col-lg-4 bg-light">
+                <form class="pt-3">
                     <div class="input-group input-group-lg">
                         <input id="city-state" type="text" class="form-control" placeholder="City, St"
                             aria-label="Large" aria-describedby="inputGroup-sizing-sm">
@@ -76,14 +78,16 @@
         </div>
     </div>
     <script>
+
+        // Query on city click
         $(document).ready(function () {
-            // Query on city click
             $(".city").click(event => {
                 event.preventDefault();
 
                 queryOWMAPIByCity($(event.currentTarget).text(), displayWeather);
             });
         });
+
         // Attempt to locate the user
         // Otherwise, remove location option.
         $("#locate").click(() => {
@@ -144,14 +148,18 @@
             $("#current-weather").empty();
 
             var result = $("<section>").addClass("card col-10 mx-auto p-5");
+
+            result.append($("<h3>").html("Current Weather for " + location + " (<i>" + moment.unix(weather.dt).format("l") + "</i>)"));
+
             var img = $("<img>").attr({
                 src: "https://openweathermap.org/img/wn/" + weather.weather[0].icon + "@2x.png",
                 alt: weather.weather[0].description,
                 width: "100px !important",
                 height: "100px !important"
             });
-            result.append($("<h3>").html("Current Weather for " + location + " (<i>" + moment.unix(weather.dt).format("l") + "</i>)"));
+
             result.append(img);
+
             result.append($("<p>").addClass("display-block").text("Temperature: " + weather.temp.toFixed(0) + "°F"));
             result.append($("<p>").addClass("display-block").text("Humidity: " + weather.humidity + "%"));
             result.append($("<p>").addClass("display-block").text("Wind: " + getWindDirection(weather.wind_deg) + " " + weather.wind_speed.toFixed(0) + "mph"));
@@ -164,7 +172,7 @@
             var cardinalDirection = ["NW", "NNW", "N", "NNE", "NE", "ENE", "E", "ESE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW"];
 
             for (let i = 0; i <= 16; i++) {
-                if (((i*22.5)+11.25) >= degrees && (((i*22.5) - 11.25) <= degrees)) {
+                if (((i * 22.5) + 11.25) >= degrees && (((i * 22.5) - 11.25) <= degrees)) {
                     return cardinalDirection[i];
                 }
             }
